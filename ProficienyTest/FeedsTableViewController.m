@@ -16,17 +16,29 @@ static NSString *CellIdentifier = @"CellIdentifier";
 
 #define kAppIconSize 80
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 @interface FeedsTableViewController ()
 
 @property (nonatomic,strong) NSMutableDictionary *offscreenCells;
 
 @end
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 @implementation FeedsTableViewController
 
 @synthesize jsonDict;
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+#pragma mark - Life Cycle
 
+///////////////////////////////////////////////////////////////
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -41,13 +53,13 @@ static NSString *CellIdentifier = @"CellIdentifier";
     
     [self.tableView registerClass:[FeedsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
-    
+    //initializing refresh control
     UIRefreshControl* refreshControl=[[[UIRefreshControl alloc] init] autorelease];
     refreshControl.attributedTitle=[[[NSAttributedString alloc] initWithString:@"Pull to refresh"] autorelease];
     self.refreshControl=refreshControl;
     [refreshControl addTarget:self action:@selector(refreshData:) forControlEvents:UIControlEventValueChanged];
     
-    
+    //fetching data in background thread
     dispatch_async(nBackgroundQueue, ^{
         NSError *error = nil;
         NSString *jsonString = [NSString stringWithContentsOfURL:nJSONFeedURL
@@ -65,6 +77,18 @@ static NSString *CellIdentifier = @"CellIdentifier";
     });
 }
 
+///////////////////////////////////////////////////////////////
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+#pragma mark - Custom Methods
+
+///////////////////////////////////////////////////////////////
 - (void)fetchedData:(NSData *)responseData {
     NSError* error;
     self.jsonDict = [NSJSONSerialization JSONObjectWithData:responseData options:kNilOptions error:&error];
@@ -73,6 +97,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
     [self.tableView reloadData];
 }
 
+///////////////////////////////////////////////////////////////
 -(void)refreshData:(UIRefreshControl*)refreshControl
 
 {
@@ -98,24 +123,72 @@ static NSString *CellIdentifier = @"CellIdentifier";
     [refreshControl endRefreshing];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+
+///////////////////////////////////////////////////////////////
+-(void)updateImageWithIndex:(NSInteger)index andCell:(FeedsTableViewCell*)cell
+{
+    
+    if ([[[self.jsonDict valueForKey:@"rows"] valueForKey:@"imageHref"] objectAtIndex:index]==[NSNull null]) {
+        [cell.img setFrame:CGRectMake(0.0,0.0, 0, 0)];
+    }else{
+        NSURLRequest *urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:[[[self.jsonDict valueForKey:@"rows"] valueForKey:@"imageHref"] objectAtIndex:index]]];
+        if ( queue == nil )
+        {
+            queue = [[NSOperationQueue alloc] init];
+        }
+        
+        //fetching images in the background
+        [NSURLConnection sendAsynchronousRequest:urlRequest queue:queue completionHandler:^(NSURLResponse * resp, NSData *data, NSError *error)
+         {
+             dispatch_async(nBackgroundQueue,^
+                            {
+                                if ( error == nil && data )
+                                {
+                                    //UIImage *urlImage = [UIImage imageWithData:data];
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                        //[cell.img setImage:urlImage];
+                                        
+                                        UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
+                                        
+                                        if (image.size.width != kAppIconSize || image.size.height != kAppIconSize)
+                                        {
+                                            CGSize itemSize = CGSizeMake(kAppIconSize, kAppIconSize);
+                                            UIGraphicsBeginImageContextWithOptions(itemSize, NO, 0.0f);
+                                            CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
+                                            [image drawInRect:imageRect];
+                                            cell.img.image = UIGraphicsGetImageFromCurrentImageContext();
+                                            UIGraphicsEndImageContext();
+                                        }
+                                        else
+                                        {
+                                            cell.img.image = image;
+                                        }
+                                    });
+                                    
+                                }
+                            });
+         }];
+        
+    }
 }
 
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 #pragma mark - Table view data source
 
+///////////////////////////////////////////////////////////////
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
+///////////////////////////////////////////////////////////////
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     // Return the number of rows in the section.
     return [[self.jsonDict valueForKey:@"rows"] count];
 }
 
-
+///////////////////////////////////////////////////////////////
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     FeedsTableViewCell* cell;
@@ -146,53 +219,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
     return cell;
 }
 
-
--(void)updateImageWithIndex:(NSInteger)index andCell:(FeedsTableViewCell*)cell
-{
-    
-    if ([[[self.jsonDict valueForKey:@"rows"] valueForKey:@"imageHref"] objectAtIndex:index]==[NSNull null]) {
-        [cell.img setFrame:CGRectMake(0.0,0.0, 0, 0)];
-    }else{
-        NSURLRequest *urlRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:[[[self.jsonDict valueForKey:@"rows"] valueForKey:@"imageHref"] objectAtIndex:index]]];
-        if ( queue == nil )
-        {
-            queue = [[NSOperationQueue alloc] init];
-        }
-        [NSURLConnection sendAsynchronousRequest:urlRequest queue:queue completionHandler:^(NSURLResponse * resp, NSData *data, NSError *error)
-         {
-             dispatch_async(nBackgroundQueue,^
-                            {
-                                if ( error == nil && data )
-                                {
-                                    //UIImage *urlImage = [UIImage imageWithData:data];
-                                    dispatch_async(dispatch_get_main_queue(), ^{
-                                        //[cell.img setImage:urlImage];
-                                       
-                                        UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
-
-                                        if (image.size.width != kAppIconSize || image.size.height != kAppIconSize)
-                                        {
-                                            CGSize itemSize = CGSizeMake(kAppIconSize, kAppIconSize);
-                                            UIGraphicsBeginImageContextWithOptions(itemSize, NO, 0.0f);
-                                            CGRect imageRect = CGRectMake(0.0, 0.0, itemSize.width, itemSize.height);
-                                            [image drawInRect:imageRect];
-                                            cell.img.image = UIGraphicsGetImageFromCurrentImageContext();
-                                            UIGraphicsEndImageContext();
-                                        }
-                                        else
-                                        {
-                                            cell.img.image = image;
-                                        }
-                                    });
-                                    
-                                }
-                            });
-         }];
-        
-    }
-}
-
-
+///////////////////////////////////////////////////////////////
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
     NSString *reuseIdentifier = CellIdentifier;
@@ -229,7 +256,6 @@ static NSString *CellIdentifier = @"CellIdentifier";
     return height;
     
 }
-
 
 
 @end

@@ -9,21 +9,36 @@
 #import "FeedsTableViewCell.h"
 #import <PureLayout/PureLayout.h>
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 @interface FeedsTableViewCell ()
 
 #define kLabelHorizontalInsets      15.0f
 #define kLabelVerticalInsets        10.0f
+#define kLabelCommonInsets          5.0f
 
 @property (nonatomic,assign) BOOL didSetupConstraints;
 
 @end
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+
 @implementation FeedsTableViewCell
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+#pragma mark - Life Cycle
+
+///////////////////////////////////////////////////////////////
 - (void)awakeFromNib {
     // Initialization code
 }
 
+///////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -49,19 +64,19 @@
         self.slugLine.text = @"";
         [self.contentView addSubview:self.slugLine];
         
-        //self.headLine.backgroundColor = [UIColor blueColor];
-        //self.slugLine.backgroundColor = [UIColor blackColor];
         
         self.img = [[UIImageView newAutoLayoutView] autorelease];
         self.img.translatesAutoresizingMaskIntoConstraints = NO;
         [self.contentView addSubview:self.img];
-        //self.img.backgroundColor = [UIColor colorWithRed:1 green:1 blue:0 alpha:0.1];
-        
-        //self.contentView.backgroundColor = [UIColor colorWithRed:0 green:1 blue:0 alpha:0.1];
     }
     return self;
 }
 
+///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
+#pragma mark - Custom UI
+
+///////////////////////////////////////////////////////////////
 - (void) updateConstraints {
     if (!self.didSetupConstraints) {
         
@@ -81,9 +96,9 @@
         [self.slugLine autoPinEdgeToSuperviewEdge:ALEdgeTrailing withInset:55.];
         [self.slugLine autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:kLabelVerticalInsets];
         
-        [self.img autoPinEdgeToSuperviewEdge:ALEdgeRight withInset:5.];
+        [self.img autoPinEdgeToSuperviewEdge:ALEdgeRight withInset:kLabelCommonInsets];
         [self.img autoPinEdge:ALEdgeTop toEdge:ALEdgeBottom ofView:self.headLine withOffset:-20. relation:NSLayoutRelationGreaterThanOrEqual];
-        [self.img autoPinEdge:ALEdgeLeft toEdge:ALEdgeRight ofView:self.slugLine withOffset:5. relation:NSLayoutRelationGreaterThanOrEqual];
+        [self.img autoPinEdge:ALEdgeLeft toEdge:ALEdgeRight ofView:self.slugLine withOffset:kLabelCommonInsets relation:NSLayoutRelationGreaterThanOrEqual];
         [self.img autoPinEdgeToSuperviewEdge:ALEdgeBottom withInset:kLabelVerticalInsets];
         
         
@@ -92,6 +107,7 @@
     [super updateConstraints];
 }
 
+///////////////////////////////////////////////////////////////
 - (void)layoutSubviews
 {
     [super layoutSubviews];
