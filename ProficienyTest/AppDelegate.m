@@ -21,8 +21,8 @@
     // Override point for customization after application launch.
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     [self.window makeKeyAndVisible];
-    FeedsTableViewController* feedsViewController=[[FeedsTableViewController alloc] init] ;
-    navigationController=[[UINavigationController alloc] initWithRootViewController:feedsViewController];
+    FeedsTableViewController* feedsViewController=[[[FeedsTableViewController alloc] init] autorelease] ;
+    navigationController=[[[UINavigationController alloc] initWithRootViewController:feedsViewController] autorelease];
     self.window.rootViewController=navigationController;
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)

@@ -30,8 +30,8 @@ static NSString *CellIdentifier = @"CellIdentifier";
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.jsonDict=[[NSDictionary alloc] init];
-    queue = [[NSOperationQueue alloc] init];
+    self.jsonDict=[[[NSDictionary alloc] init] autorelease];
+    queue =[[NSOperationQueue alloc] init];
     
     self.tableView.delegate=self;
     self.tableView.dataSource=self;
@@ -42,8 +42,8 @@ static NSString *CellIdentifier = @"CellIdentifier";
     [self.tableView registerClass:[FeedsTableViewCell class] forCellReuseIdentifier:CellIdentifier];
     
     
-    UIRefreshControl* refreshControl=[[UIRefreshControl alloc] init];
-    refreshControl.attributedTitle=[[NSAttributedString alloc] initWithString:@"Pull to refresh"];
+    UIRefreshControl* refreshControl=[[[UIRefreshControl alloc] init] autorelease];
+    refreshControl.attributedTitle=[[[NSAttributedString alloc] initWithString:@"Pull to refresh"] autorelease];
     self.refreshControl=refreshControl;
     [refreshControl addTarget:self action:@selector(refreshData:) forControlEvents:UIControlEventValueChanged];
     
@@ -76,7 +76,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
 -(void)refreshData:(UIRefreshControl*)refreshControl
 
 {
-    NSDateFormatter* dateFormatter=[[NSDateFormatter alloc] init];
+    NSDateFormatter* dateFormatter=[[[NSDateFormatter alloc] init] autorelease];
     [dateFormatter setDateFormat:@"MMM d, h:mm a"];
     
     dispatch_async(nBackgroundQueue, ^{
@@ -94,7 +94,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
     });
     
     NSString* lastUpdated=[NSString stringWithFormat:@"Last Updated on:%@",[dateFormatter stringFromDate:[NSDate date]]];
-    refreshControl.attributedTitle=[[NSAttributedString alloc] initWithString:lastUpdated];
+    refreshControl.attributedTitle=[[[NSAttributedString alloc] initWithString:lastUpdated] autorelease];
     [refreshControl endRefreshing];
 }
 
@@ -121,7 +121,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
     FeedsTableViewCell* cell;
     cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[FeedsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell = [[[FeedsTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
     }
     
     if ([[[self.jsonDict valueForKey:@"rows"] valueForKey:@"title"] objectAtIndex:indexPath.row]==[NSNull null]) {
@@ -168,7 +168,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
                                     dispatch_async(dispatch_get_main_queue(), ^{
                                         //[cell.img setImage:urlImage];
                                        
-                                        UIImage *image = [[UIImage alloc] initWithData:data];
+                                        UIImage *image = [[[UIImage alloc] initWithData:data] autorelease];
 
                                         if (image.size.width != kAppIconSize || image.size.height != kAppIconSize)
                                         {
@@ -198,7 +198,7 @@ static NSString *CellIdentifier = @"CellIdentifier";
     NSString *reuseIdentifier = CellIdentifier;
     FeedsTableViewCell *cell = [self.offscreenCells objectForKey:reuseIdentifier];
     if (!cell) {
-        cell = [[FeedsTableViewCell alloc] init];
+        cell = [[[FeedsTableViewCell alloc] init] autorelease];
         [self.offscreenCells setObject:cell forKey:reuseIdentifier];
     }
     

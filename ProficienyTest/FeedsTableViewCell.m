@@ -31,7 +31,7 @@
         
         self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         
-        self.headLine = [UILabel newAutoLayoutView];
+        self.headLine = [[UILabel newAutoLayoutView] autorelease];
         [self.headLine setLineBreakMode:NSLineBreakByTruncatingTail];
         [self.headLine setNumberOfLines:1];
         [self.headLine setTextAlignment:NSTextAlignmentLeft];
@@ -40,7 +40,7 @@
         [self.contentView addSubview:self.headLine];
         
         
-        self.slugLine = [UILabel newAutoLayoutView];
+        self.slugLine = [[UILabel newAutoLayoutView] autorelease];
         [self.slugLine setLineBreakMode:NSLineBreakByTruncatingTail];
         [self.slugLine setNumberOfLines:0];
         [self.slugLine setTextAlignment:NSTextAlignmentLeft];
@@ -52,7 +52,7 @@
         //self.headLine.backgroundColor = [UIColor blueColor];
         //self.slugLine.backgroundColor = [UIColor blackColor];
         
-        self.img = [UIImageView newAutoLayoutView];
+        self.img = [[UIImageView newAutoLayoutView] autorelease];
         self.img.translatesAutoresizingMaskIntoConstraints = NO;
         [self.contentView addSubview:self.img];
         //self.img.backgroundColor = [UIColor colorWithRed:1 green:1 blue:0 alpha:0.1];
